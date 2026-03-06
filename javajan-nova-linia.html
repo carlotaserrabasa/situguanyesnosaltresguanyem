@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Javajan · Nova Línia de Negoci</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blau: #456D84;
+    --verd: #BCCC5C;
+    --taronja: #F46404;
+    --fosc: #1a2530;
+    --clar: #f5f2ec;
+    --gris: #8a9aaa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--fosc);
+    color: var(--clar);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CURSOR */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--taronja);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(244,100,4,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transition: all 0.3s ease;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.5rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(26,37,48,0.95), transparent);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    color: var(--clar);
+  }
+  .nav-logo span { color: var(--taronja); }
+  .nav-dots {
+    display: flex; gap: 0.5rem; align-items: center;
+  }
+  .nav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .nav-dot.active { background: var(--taronja); transform: scale(1.4); }
+
+  /* SLIDES */
+  .slide {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 7rem 3rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* BG ELEMENTS */
+  .bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  /* SLIDE 0 — PORTADA */
+  #s0 { background: var(--fosc); }
+  #s0 .bg-c1 { width: 600px; height: 600px; background: var(--blau); top: -200px; right: -200px; }
+  #s0 .bg-c2 { width: 400px; height: 400px; background: var(--taronja); bottom: -100px; left: -100px; }
+  #s0 .content {
+    text-align: center; max-width: 900px; z-index: 1;
+  }
+  .eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 0.85rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--verd);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+  }
+  #s0 h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 7vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+  #s0 h1 em { font-style: normal; color: var(--taronja); }
+  #s0 .subtitle {
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: rgba(245,242,236,0.65);
+    max-width: 580px;
+    margin: 0 auto 3rem;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s forwards;
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    border: 1px solid rgba(188,204,92,0.3);
+    border-radius: 100px;
+    padding: 0.6rem 1.4rem;
+    font-size: 0.85rem;
+    color: var(--verd);
+    opacity: 0;
+    animation: fadeUp 0.8s 0.9s forwards;
+  }
+  .pill-dot { width: 6px; height: 6px; background: var(--verd); border-radius: 50%; animation: pulse 2s infinite; }
+  .scroll-hint {
+    position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(245,242,236,0.3);
+    opacity: 0; animation: fadeUp 1s 1.4s forwards;
+  }
+  .scroll-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, rgba(244,100,4,0.8), transparent);
+    animation: scrollAnim 2s infinite;
+  }
+
+  /* SLIDE 1 — EL PROBLEMA */
+  #s1 { background: linear-gradient(135deg, #1a2530 0%, #1e2f3e 100%); }
+  #s1 .bg-c1 { width: 500px; height: 500px; background: var(--verd); top: -150px; left: -150px; }
+  .slide-inner { max-width: 1100px; width: 100%; z-index: 1; }
+  .slide-label {
+    font-size: 0.8rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--taronja); margin-bottom: 3rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .slide-label::after { content: ''; flex: 1; height: 1px; background: rgba(244,100,4,0.3); }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+  .two-col h2 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    line-height: 1.1; letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .two-col h2 strong { color: var(--taronja); font-weight: 800; }
+  .two-col p { color: rgba(245,242,236,0.65); line-height: 1.8; font-size: 1.05rem; margin-bottom: 1rem; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 1.5rem;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 2.2rem; color: var(--verd);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .stat-label { font-size: 0.85rem; color: rgba(245,242,236,0.5); line-height: 1.4; }
+
+  /* SLIDE 2 — LA IDEA */
+  #s2 { background: var(--fosc); }
+  #s2 .bg-c1 { width: 700px; height: 700px; background: var(--taronja); bottom: -300px; right: -200px; }
+  #s2 .center-content { text-align: center; max-width: 800px; }
+  #s2 h2 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    line-height: 1.05; letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+  }
+  #s2 h2 em { font-style: normal; color: var(--verd); }
+  .big-quote {
+    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(245,242,236,0.75);
+    line-height: 1.6;
+    border-left: 3px solid var(--taronja);
+    padding-left: 2rem;
+    text-align: left;
+    margin: 2.5rem 0;
+  }
+  .tag-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+  .tag {
+    padding: 0.5rem 1.2rem;
+    border-radius: 100px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .tag-blau { background: rgba(69,109,132,0.2); border: 1px solid rgba(69,109,132,0.4); color: #7ab0cc; }
+  .tag-verd { background: rgba(188,204,92,0.15); border: 1px solid rgba(188,204,92,0.3); color: var(--verd); }
+  .tag-taronja { background: rgba(244,100,4,0.15); border: 1px solid rgba(244,100,4,0.3); color: #f88040; }
+
+  /* SLIDE 3 — COM FUNCIONA */
+  #s3 { background: linear-gradient(160deg, #1e2f3e 0%, #1a2530 100%); }
+  #s3 .bg-c1 { width: 400px; height: 400px; background: var(--blau); top: -100px; right: -100px; opacity: 0.15; }
+  .flow-steps { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .flow-steps::before {
+    content: '';
+    position: absolute; left: 28px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, var(--taronja), var(--verd), var(--blau));
+    opacity: 0.4;
+  }
+  .flow-step {
+    display: flex; gap: 2rem; align-items: flex-start;
+    padding: 1.5rem 0 1.5rem 0;
+  }
+  .step-num {
+    width: 58px; height: 58px; min-width: 58px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+    position: relative; z-index: 1;
+  }
+  .step-1 { background: var(--taronja); color: white; }
+  .step-2 { background: rgba(244,100,4,0.2); border: 2px solid var(--taronja); color: var(--taronja); }
+  .step-3 { background: var(--verd); color: var(--fosc); }
+  .step-4 { background: rgba(188,204,92,0.2); border: 2px solid var(--verd); color: var(--verd); }
+  .step-5 { background: var(--blau); color: white; }
+  .step-body h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+  }
+  .step-body p { color: rgba(245,242,236,0.55); font-size: 0.95rem; line-height: 1.6; }
+  .step-badge {
+    display: inline-block; margin-top: 0.5rem;
+    padding: 0.25rem 0.75rem; border-radius: 100px;
+    font-size: 0.75rem; font-weight: 500;
+    background: rgba(255,255,255,0.06); color: rgba(245,242,236,0.5);
+  }
+  #s3 h2 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: clamp(1.8rem, 3vw, 2.5rem); letter-spacing: -0.02em;
+    margin-bottom: 2.5rem;
+  }
+  #s3 h2 strong { color: var(--taronja); }
+  .steps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+
+  /* SLIDE 4 — MODEL ECONÒMIC */
+  #s4 { background: var(--fosc); }
+  #s4 .bg-c1 { width: 500px; height: 500px; background: var(--verd); top: -150px; left: -200px; }
+  #s4 h2 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: clamp(1.8rem, 3vw, 2.5rem); letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+  #s4 h2 strong { color: var(--verd); }
+  #s4 .subtitle-sm { color: rgba(245,242,236,0.5); margin-bottom: 3rem; font-size: 1rem; }
+  .timeline {
+    display: flex; gap: 0; width: 100%;
+    border-radius: 16px; overflow: hidden;
+    margin-bottom: 2.5rem;
+  }
+  .tl-item {
+    flex: 1; padding: 1.8rem 1.5rem;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+  }
+  .tl-item:last-child { border-right: none; }
+  .tl-item.highlight { background: rgba(244,100,4,0.08); border: 1px solid rgba(244,100,4,0.2); border-radius: 12px; }
+  .tl-year { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.9rem; color: var(--gris); margin-bottom: 0.5rem; }
+  .tl-pct { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.2rem; line-height: 1; margin-bottom: 0.5rem; }
+  .tl-pct.zero { color: rgba(245,242,236,0.25); }
+  .tl-pct.mid { color: var(--verd); }
+  .tl-pct.full { color: var(--taronja); }
+  .tl-desc { font-size: 0.8rem; color: rgba(245,242,236,0.45); line-height: 1.5; }
+  .tl-tag {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--taronja); color: white;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.2rem 0.8rem; border-radius: 100px;
+    white-space: nowrap;
+  }
+  .info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .info-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px; padding: 1.5rem;
+  }
+  .info-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .info-card h4 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .info-card p { font-size: 0.85rem; color: rgba(245,242,236,0.5); line-height: 1.6; }
+
+  /* SLIDE 5 — OBJECCIONS */
+  #s5 { background: linear-gradient(135deg, #1a2530 0%, #1e2f3e 100%); }
+  #s5 h2 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: clamp(1.8rem, 3vw, 2.5rem); letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  #s5 h2 strong { color: var(--taronja); }
+  #s5 .subtitle-sm { color: rgba(245,242,236,0.5); margin-bottom: 2.5rem; }
+  .qa-list { display: flex; flex-direction: column; gap: 1.2rem; }
+  .qa-item {
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.07);
+    cursor: pointer;
+    transition: border-color 0.3s;
+  }
+  .qa-item:hover { border-color: rgba(244,100,4,0.3); }
+  .qa-q {
+    padding: 1.2rem 1.5rem;
+    background: rgba(255,255,255,0.03);
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 500; font-size: 1rem;
+  }
+  .qa-q span { color: var(--taronja); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.85rem; }
+  .qa-a {
+    padding: 0 1.5rem;
+    background: rgba(255,255,255,0.02);
+    max-height: 0; overflow: hidden;
+    transition: all 0.4s ease;
+    font-size: 0.95rem; color: rgba(245,242,236,0.65); line-height: 1.7;
+  }
+  .qa-a.open { max-height: 200px; padding: 1.2rem 1.5rem; }
+  .qa-item.open { border-color: rgba(244,100,4,0.2); }
+
+  /* SLIDE 6 — ALINEACIÓ TEAL */
+  #s6 { background: var(--fosc); }
+  #s6 .bg-c1 { width: 600px; height: 600px; background: var(--blau); bottom: -200px; left: -200px; }
+  #s6 .center-content { text-align: center; max-width: 850px; }
+  #s6 h2 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -0.03em;
+    margin-bottom: 1.5rem; line-height: 1.05;
+  }
+  .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin: 2.5rem 0; }
+  .value-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px; padding: 1.8rem 1.5rem; text-align: left;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .value-card:hover { transform: translateY(-4px); border-color: rgba(188,204,92,0.2); }
+  .value-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+  .value-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; }
+  .value-card p { font-size: 0.85rem; color: rgba(245,242,236,0.5); line-height: 1.6; }
+
+  /* SLIDE 7 — CIERRE */
+  #s7 {
+    background: radial-gradient(ellipse at 60% 40%, rgba(69,109,132,0.3) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(244,100,4,0.2) 0%, transparent 50%),
+                var(--fosc);
+    text-align: center;
+  }
+  #s7 .content { max-width: 750px; z-index: 1; }
+  #s7 .big-num {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(5rem, 12vw, 9rem); line-height: 0.9;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(245,242,236,0.15);
+    letter-spacing: -0.04em;
+    margin-bottom: 2rem;
+  }
+  #s7 h2 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: -0.03em;
+    line-height: 1.05; margin-bottom: 1.5rem;
+  }
+  #s7 h2 em { font-style: normal; color: var(--taronja); }
+  #s7 p { color: rgba(245,242,236,0.6); font-size: 1.1rem; line-height: 1.7; margin-bottom: 2.5rem; }
+  .cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    padding: 0.9rem 2rem; border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem;
+    cursor: pointer; border: none; transition: all 0.3s;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-primary { background: var(--taronja); color: white; }
+  .btn-primary:hover { background: #d45500; transform: translateY(-2px); }
+  .btn-secondary { background: transparent; border: 1px solid rgba(245,242,236,0.2); color: var(--clar); }
+  .btn-secondary:hover { border-color: rgba(245,242,236,0.5); transform: translateY(-2px); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  @keyframes scrollAnim {
+    0% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+    50% { opacity: 1; transform: scaleY(1); }
+    100% { opacity: 0; transform: scaleY(1); transform-origin: bottom; }
+  }
+
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.15s; }
+  .reveal-delay-2 { transition-delay: 0.3s; }
+  .reveal-delay-3 { transition-delay: 0.45s; }
+  .reveal-delay-4 { transition-delay: 0.6s; }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    position: fixed; top: 0; left: 0;
+    height: 2px; background: var(--taronja);
+    z-index: 200; transition: width 0.3s ease;
+  }
+
+  @media (max-width: 768px) {
+    .two-col, .steps-grid, .values-grid, .info-row, .stat-grid { grid-template-columns: 1fr; }
+    .timeline { flex-direction: column; }
+    nav { padding: 1rem 1.5rem; }
+    .slide { padding: 6rem 1.5rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<nav>
+  <div class="nav-logo">java<span>jan</span></div>
+  <div class="nav-dots" id="navDots"></div>
+</nav>
+
+<!-- SLIDE 0: PORTADA -->
+<section class="slide" id="s0">
+  <div class="bg-circle bg-c1"></div>
+  <div class="bg-circle bg-c2"></div>
+  <div class="content">
+    <div class="eyebrow">Proposta interna · 2025</div>
+    <h1>I si<br><em>guanyeu</em><br>junts?</h1>
+    <p class="subtitle">Una nova línia de negoci que converteix el talent de Javajan en participació real en el futur dels nostres clients.</p>
+    <div class="pill"><div class="pill-dot"></div> Nova línia estratègica</div>
+  </div>
+  <div class="scroll-hint">
+    <span>Explorar</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- SLIDE 1: EL PROBLEMA -->
+<section class="slide" id="s1">
+  <div class="bg-circle bg-c1"></div>
+  <div class="slide-inner">
+    <div class="slide-label reveal">01 · El punt de partida</div>
+    <div class="two-col">
+      <div>
+        <h2 class="reveal reveal-delay-1">Hi ha gent amb <strong>grans idees</strong> i cap eina per fer-les realitat.</h2>
+        <p class="reveal reveal-delay-2">Cada dia, milers de persones descarten el seu somni empresarial per una sola raó: no saben com fer-ho digital, i els costa diners que no tenen.</p>
+        <p class="reveal reveal-delay-3">Mentrestant, el nostre equip tècnic és tan bo i ràpid que de vegades queden <strong style="color: var(--clar)">amb capacitat disponible</strong>. Dos problemes que s'encaixen perfectament.</p>
+      </div>
+      <div class="stat-grid reveal reveal-delay-2">
+        <div class="stat-card">
+          <div class="stat-num">73%</div>
+          <div class="stat-label">d'emprenedors citen la manca de coneixements digitals com la principal barrera</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">~15'</div>
+          <div class="stat-label">és el temps que necessitem per construir un MVP funcional amb IA</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">0€</div>
+          <div class="stat-label">és el cost marginal real del nostre equip quan té capacitat disponible</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">1 de 10</div>
+          <div class="stat-label">startups digitals sobreviu el primer any. Nosaltres augmentem les seves possibilitats.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 2: LA IDEA -->
+<section class="slide" id="s2">
+  <div class="bg-circle bg-c1"></div>
+  <div class="slide-inner" style="display:flex; justify-content:center;">
+    <div class="center-content">
+      <div class="slide-label reveal" style="justify-content:center;">02 · La proposta</div>
+      <h2 class="reveal reveal-delay-1">Construïm el teu negoci.<br><em>Gratis.</em></h2>
+      <blockquote class="big-quote reveal reveal-delay-2">
+        "Si tu guanyes, nosaltres guanyem. Però primer hem de començar, i sabem que començar és el més difícil. Per això t'ajudem a arrencar — totalment gratis."
+      </blockquote>
+      <p class="reveal reveal-delay-3" style="color: rgba(245,242,236,0.6); line-height:1.8; margin-bottom:1.5rem;">
+        Javajan aporta la web, l'app, el màrqueting inicial i el suport tecnològic. El client aporta la idea i les ganes. A canvi, acordem un percentatge modest sobre la facturació futura, quan el negoci comenci a generar ingressos.
+      </p>
+      <div class="tag-row reveal reveal-delay-4">
+        <span class="tag tag-taronja">Sense cost inicial per al client</span>
+        <span class="tag tag-verd">Percentatge sobre facturació</span>
+        <span class="tag tag-blau">80% automatitzat</span>
+        <span class="tag tag-verd">Model de co-creació</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: COM FUNCIONA -->
+<section class="slide" id="s3">
+  <div class="bg-circle bg-c1"></div>
+  <div class="slide-inner">
+    <div class="slide-label reveal">03 · Com funciona</div>
+    <div class="steps-grid">
+      <div>
+        <h2 class="reveal reveal-delay-1">La plataforma treballa. <strong>El nostre equip revisa.</strong></h2>
+        <p class="reveal reveal-delay-2" style="color: rgba(245,242,236,0.55); line-height:1.8; margin-bottom:1rem;">
+          El flux és màximament autònom. La IA fa el 80% de la feina — des de la qualificació de la idea fins a la generació del MVP. El personal humà intervé únicament quan cal.
+        </p>
+        <p class="reveal reveal-delay-3" style="color: rgba(245,242,236,0.55); line-height:1.8;">
+          Objectiu: que un sol tècnic pugui supervisar 20+ projectes simultàniament.
+        </p>
+      </div>
+      <div class="flow-steps reveal reveal-delay-2">
+        <div class="flow-step">
+          <div class="step-num step-1">01</div>
+          <div class="step-body">
+            <h3>Formulari intel·ligent</h3>
+            <p>El client descriu la seva idea guiat per IA. El sistema recull totes les dades necessàries.</p>
+            <span class="step-badge">100% automatitzat</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num step-2">02</div>
+          <div class="step-body">
+            <h3>Scoring de viabilitat</h3>
+            <p>La IA avalua la idea i filtra els casos amb potencial real. Evita malgastar recursos.</p>
+            <span class="step-badge">IA · revisió humana opcional</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num step-3">03</div>
+          <div class="step-body">
+            <h3>Construcció del MVP</h3>
+            <p>Web o app funcional generada en hores. El nostre equip valida la qualitat final.</p>
+            <span class="step-badge">IA + tècnic revisor</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num step-4">04</div>
+          <div class="step-body">
+            <h3>Signatura de contracte</h3>
+            <p>Acord de participació en facturació, clar i transparent. Una plantilla única per a tots.</p>
+            <span class="step-badge">Legal · 1 cop</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num step-5">05</div>
+          <div class="step-body">
+            <h3>Llançament i acompanyament</h3>
+            <p>Suport via IA per a dubtes del client. Possibilitat de sumar l'equip de màrqueting.</p>
+            <span class="step-badge">IA · autònom</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: MODEL ECONÒMIC -->
+<section class="slide" id="s4">
+  <div class="bg-circle bg-c1"></div>
+  <div class="slide-inner">
+    <div class="slide-label reveal">04 · Model econòmic</div>
+    <h2 class="reveal reveal-delay-1">Un % <strong>just i creixent.</strong></h2>
+    <p class="subtitle-sm reveal reveal-delay-2">Dissenyat per no ofegar el client mentre construeix, i créixer amb ell quan creix.</p>
+    <div class="timeline reveal reveal-delay-2">
+      <div class="tl-item" style="background: rgba(255,255,255,0.02);">
+        <div class="tl-year">Any 1</div>
+        <div class="tl-pct zero">0%</div>
+        <div class="tl-desc">Temps de construcció i validació. Invertim sense esperar res a canvi.</div>
+      </div>
+      <div class="tl-item highlight" style="position:relative; margin: -1px;">
+        <div class="tl-tag">↗ Retorn comença</div>
+        <div class="tl-year">Anys 2-5</div>
+        <div class="tl-pct mid">3%</div>
+        <div class="tl-desc">Sobre facturació bruta. El negoci creix, nosaltres creixem amb ell.</div>
+      </div>
+      <div class="tl-item" style="background: rgba(255,255,255,0.02);">
+        <div class="tl-year">Any 6+</div>
+        <div class="tl-pct full">5%</div>
+        <div class="tl-desc">Negoci consolidat. La nostra participació reflecteix la maduresa del projecte.</div>
+      </div>
+    </div>
+    <div class="info-row reveal reveal-delay-3">
+      <div class="info-card">
+        <div class="info-icon">⚠️</div>
+        <h4>Risc real: mínim</h4>
+        <p>El cost és temps que ja tenim disponible + hosting (~15€/mes per client). Cap despesa nova significativa.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">⚖️</div>
+        <h4>Legal: una sola vegada</h4>
+        <p>Contracte de participació en facturació redactat per un advocat. Plantilla reutilitzable per a tots els clients.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">💡</div>
+        <h4>La clau del model</h4>
+        <p>Si 1 de cada 10 clients té èxit, ja és rentable. Si 2 o 3 escalen, és transformador per a Javajan.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5: OBJECCIONS -->
+<section class="slide" id="s5">
+  <div class="slide-inner" style="max-width: 750px;">
+    <div class="slide-label reveal">05 · Preguntes freqüents</div>
+    <h2 class="reveal reveal-delay-1">Parlem dels <strong>dubtes reals.</strong></h2>
+    <p class="subtitle-sm reveal reveal-delay-2">La transparència és part del nostre ADN. Aquí teniu les objeccions honestes i les respostes.</p>
+    <div class="qa-list reveal reveal-delay-2">
+      <div class="qa-item" onclick="toggleQA(this)">
+        <div class="qa-q">Estarem malgastant hores de l'equip tècnic? <span>+</span></div>
+        <div class="qa-a">No. Estem invertint hores que ja existeixen — i que si no s'usen, es paguen igualment. La diferència és que ara aquelles hores poden generar retorn futur. Com tenir un fons d'inversió, però aportant talent en comptes de diners.</div>
+      </div>
+      <div class="qa-item" onclick="toggleQA(this)">
+        <div class="qa-q">I si els clients no declaren els seus ingressos reals? <span>+</span></div>
+        <div class="qa-a">El contracte inclou clàusules de transparència comptable i un mecanisme de mínim anual simbòlic (ex: 300€/any a partir de l'any 2) que ens permet detectar si un negoci és actiu. No és infal·lible, però sí un filtre real. I legalment, ocultar facturació contractualment declarada té conseqüències.</div>
+      </div>
+      <div class="qa-item" onclick="toggleQA(this)">
+        <div class="qa-q">El 80% automatitzat és realista? <span>+</span></div>
+        <div class="qa-a">Sí, amb les capacitats actuals de Claude i les nostres eines internes. El formulari, el scoring, la generació del MVP i el suport post-llançament es poden automatitzar àmpliament. El personal humà valida la qualitat i gestiona els casos excepcionals — com ja fem amb molts dels nostres fluxos interns.</div>
+      </div>
+      <div class="qa-item" onclick="toggleQA(this)">
+        <div class="qa-q">Quant temps trigarem a veure retorn? <span>+</span></div>
+        <div class="qa-a">El primer retorn arriba a partir de l'any 2. Però els primers 12 mesos ens permeten construir la plataforma, validar el procés i acumular una cartera de projectes. És una inversió a mig termini, no un negoci de retorn immediat.</div>
+      </div>
+      <div class="qa-item" onclick="toggleQA(this)">
+        <div class="qa-q">Interferirà amb els projectes actuals de clients? <span>+</span></div>
+        <div class="qa-a">No ha d'interferir. Precisament el disseny és que funcioni de manera autònoma. Els tècnics hi dediquen temps residual, i el sistema de scoring filtra quants projectes entren simultàniament per no sobrecarregar l'equip.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 6: ALINEACIÓ TEAL -->
+<section class="slide" id="s6">
+  <div class="bg-circle bg-c1"></div>
+  <div class="slide-inner" style="display:flex; justify-content:center;">
+    <div class="center-content">
+      <div class="slide-label reveal" style="justify-content:center;">06 · Per què ara, per què nosaltres</div>
+      <h2 class="reveal reveal-delay-1">No és un gir estratègic.<br>És qui <span style="color:var(--verd)">sempre hem estat.</span></h2>
+      <div class="values-grid reveal reveal-delay-2">
+        <div class="value-card">
+          <div class="value-icon">🌱</div>
+          <h3>Propòsit TEAL</h3>
+          <p>Ajudar a créixer, no només facturar. Aquesta línia és la definició literal del nostre propòsit com a organització.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">🤝</div>
+          <h3>Incentius alineats</h3>
+          <p>Per primer cop, els interessos de Javajan i del client estan 100% alineats. Guanyem si i només si ells guanyen.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">⚡</div>
+          <h3>El nostre superpower</h3>
+          <p>Gràcies a la IA, fem en 20 minuts el que fa 5 anys trigava setmanes. És el moment d'usar això per crear valor real.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">🔭</div>
+          <h3>Diversificació</h3>
+          <p>A llarg termini, construïm una cartera de participacions en negocis digitals. Un actiu que cap agència tradicional té.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">💬</div>
+          <h3>Honestedat radical</h3>
+          <p>"Si tu guanyes, guanyem tots." No hi ha lletra petita. No hi ha truc. Exactament com volem que sigui Javajan.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">🚀</div>
+          <h3>Impacte real</h3>
+          <p>Donem a persones reals l'oportunitat de complir el seu somni empresarial. Pocs negocis poden dir el mateix.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7: CIERRE -->
+<section class="slide" id="s7">
+  <div class="content">
+    <div class="big-num reveal">2025</div>
+    <h2 class="reveal reveal-delay-1">El viatge acaba<br>de <em>tornar a començar.</em></h2>
+    <p class="reveal reveal-delay-2">Durant 25 anys hem ajudat empreses a créixer digitalment. Ara tenim l'oportunitat de fer quelcom més gran: ajudar persones a créixer des de zero, amb zero barreres, i créixer amb elles.</p>
+    <div class="cta-row reveal reveal-delay-3">
+      <a class="btn btn-primary" href="#">Votem-ho 🙋</a>
+      <a class="btn btn-secondary" href="#">Obrir debat →</a>
+    </div>
+    <p class="reveal reveal-delay-4" style="margin-top: 2.5rem; font-size:0.85rem; color: rgba(245,242,236,0.3);">
+      Presentació elaborada per a debat intern Javajan · Confidencial
+    </p>
+  </div>
+</section>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animCursor() {
+    cursor.style.left = mx - 6 + 'px';
+    cursor.style.top = my - 6 + 'px';
+    rx += (mx - rx) * 0.15;
+    ry += (my - ry) * 0.15;
+    ring.style.left = rx - 18 + 'px';
+    ring.style.top = ry - 18 + 'px';
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+
+  // Nav dots
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('navDots');
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => slides[i].scrollIntoView({ behavior: 'smooth' });
+    dotsContainer.appendChild(dot);
+  });
+
+  // Progress + dots update
+  const progressBar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    progressBar.style.width = scrolled * 100 + '%';
+    const dots = dotsContainer.querySelectorAll('.nav-dot');
+    let current = 0;
+    slides.forEach((s, i) => {
+      if (window.scrollY >= s.offsetTop - window.innerHeight / 2) current = i;
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  reveals.forEach(r => obs.observe(r));
+
+  // QA toggle
+  function toggleQA(el) {
+    const ans = el.querySelector('.qa-a');
+    const span = el.querySelector('span');
+    const isOpen = ans.classList.contains('open');
+    document.querySelectorAll('.qa-a').forEach(a => a.classList.remove('open'));
+    document.querySelectorAll('.qa-item').forEach(i => i.classList.remove('open'));
+    document.querySelectorAll('.qa-q span').forEach(s => s.textContent = '+');
+    if (!isOpen) {
+      ans.classList.add('open');
+      el.classList.add('open');
+      span.textContent = '−';
+    }
+  }
+</script>
+</body>
+</html>
